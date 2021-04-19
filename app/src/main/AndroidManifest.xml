@@ -118,6 +118,10 @@
             android:name=".zxing.android.CaptureActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".face.activity.RegisterAndRecognizeActivity"
+            android:launchMode="singleTop" />
+
     </application>
 
 

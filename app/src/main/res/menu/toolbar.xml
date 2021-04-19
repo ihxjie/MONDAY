@@ -8,8 +8,8 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/face "
-       android:icon="@drawable/face_id"
+        android:id="@+id/face"
+        android:icon="@drawable/face"
         android:title="face"
         app:showAsAction="always" />
 
