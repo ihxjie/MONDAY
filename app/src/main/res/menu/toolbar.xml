@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/scan"
+        android:icon="@drawable/scan"
+        android:title="scan"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/face "
+       android:icon="@drawable/face_id"
+        android:title="face"
+        app:showAsAction="always" />
+
+</menu>
