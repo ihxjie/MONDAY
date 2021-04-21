@@ -1,8 +1,6 @@
 package com.ihxjie.monday.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.ihxjie.monday.R;
-import com.ihxjie.monday.activity.ClazzActivity;
 import com.ihxjie.monday.entity.Attendance;
-import com.ihxjie.monday.entity.ClazzInfo;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder> {
@@ -32,12 +26,16 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         ImageView attendanceType;
         TextView startTime;
         TextView endTime;
+        TextView attendanceText;
+        TextView attDate;
         public ViewHolder(View view){
             super(view);
             clazzView = view;
             attendanceType = (ImageView) view.findViewById(R.id.attendanceType);
             startTime = (TextView) view.findViewById(R.id.startTime);
             endTime = (TextView) view.findViewById(R.id.endTime);
+            attendanceText = (TextView) view.findViewById(R.id.attendanceText);
+            attDate = (TextView) view.findViewById(R.id.att_date);
         }
     }
 
@@ -56,6 +54,10 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             public void onClick(View v) {
                 int position = holder.getLayoutPosition();
                 Attendance attendance = mAttendanceList.get(position);
+                if (attendance.getAttendanceType() == 1){
+
+                }
+
 
             }
         });
@@ -65,16 +67,32 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull AttendanceAdapter.ViewHolder holder, int position) {
         Attendance attendance = mAttendanceList.get(position);
-        holder.startTime.setText(attendance.getStartTime().toString());
-        holder.endTime.setText(attendance.getEndTime().toString());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter df2 = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDateTime startTime = LocalDateTime.parse(attendance.getStartTime(), df);
+        LocalDateTime endTime = LocalDateTime.parse(attendance.getEndTime(), df);
+
+        holder.startTime.setText(df2.format(startTime));
+        holder.endTime.setText(df2.format(endTime));
+        holder.attDate.setText(startTime.toLocalDate().toString());
         if (attendance.getAttendanceType() == 1){
-            holder.attendanceType.setImageResource(R.drawable.click);
+            holder.attendanceType.setImageResource(R.drawable.att_click);
+            holder.attendanceText.setText("点击签到");
         }else if (attendance.getAttendanceType() == 2){
-            holder.attendanceType.setImageResource(R.drawable.qrcode);
+            holder.attendanceType.setImageResource(R.drawable.att_qrcode);
+            holder.attendanceText.setText("二维码签到");
         }else if (attendance.getAttendanceType() == 3) {
-            holder.attendanceType.setImageResource(R.drawable.position);
+            holder.attendanceType.setImageResource(R.drawable.att_location);
+            holder.attendanceText.setText("地理位置签到");
         } else if (attendance.getAttendanceType() == 4) {
-            holder.attendanceType.setImageResource(R.drawable.face);
+            holder.attendanceType.setImageResource(R.drawable.att_face);
+            holder.attendanceText.setText("人脸识别签到");
+        } else if (attendance.getAttendanceType() == 5) {
+            holder.attendanceType.setImageResource(R.drawable.face_location);
+            holder.attendanceText.setText("人脸+地理签到");
+        } else if (attendance.getAttendanceType() == 6) {
+            holder.attendanceType.setImageResource(R.drawable.location_qrcode);
+            holder.attendanceText.setText("地理+二维码签到");
         }
     }
 

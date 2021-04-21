@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     tools:context=".activity.ClazzActivity">
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:fitsSystemWindows="true">
@@ -15,7 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
-
             android:fitsSystemWindows="true"
             app:contentScrim="@color/primaryColor"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -38,10 +38,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/clazz_attendance"
+                app:autoSizeMaxTextSize="20dp"
+                app:autoSizeMinTextSize="10dp"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"

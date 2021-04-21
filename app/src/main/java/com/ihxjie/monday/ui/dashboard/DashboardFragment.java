@@ -51,12 +51,7 @@ public class DashboardFragment extends Fragment {
         queryClasses();
         mSwipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.teal_700);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                queryClasses();
-            }
-        });
+        mSwipeRefreshLayout.setOnRefreshListener(this::queryClasses);
 
         return root;
     }

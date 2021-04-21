@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.ihxjie.monday.R;
@@ -71,12 +73,8 @@ public class ClazzAdapter extends RecyclerView.Adapter<ClazzAdapter.ViewHolder> 
         ClazzInfo clazzInfo = mClazzInfoList.get(position);
         Glide.with(context)
                 .load(clazzInfo.getLogo())
-                .into(new SimpleTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        holder.clazzLogo.setImageDrawable(resource);
-                    }
-                });
+                .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
+                .into(holder.clazzLogo);
         holder.clazzTitle.setText(clazzInfo.getTitle());
         holder.clazzDescription.setText(clazzInfo.getDescription());
         holder.teacher.setText(clazzInfo.getTeacher());

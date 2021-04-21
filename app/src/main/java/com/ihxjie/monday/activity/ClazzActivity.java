@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -29,6 +31,7 @@ import com.ihxjie.monday.entity.Clazz;
 import com.ihxjie.monday.entity.ClazzInfo;
 import com.ihxjie.monday.service.AttendanceService;
 import com.ihxjie.monday.service.ClazzService;
+import com.ihxjie.monday.util.BlurTransformation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -63,7 +66,8 @@ public class ClazzActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         collapsingToolbar = findViewById(R.id.collapsingToolbar);
         mRecyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        StaggeredGridLayoutManager layoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -87,12 +91,8 @@ public class ClazzActivity extends AppCompatActivity {
                     Clazz clazz = response.body();
                     Glide.with(context)
                             .load(clazz.getClazzLogo())
-                            .into(new SimpleTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                    imageView.setImageDrawable(resource);
-                                }
-                            });
+                            .apply(RequestOptions.bitmapTransform(new BlurTransformation(context, 25, 8)))
+                            .into(imageView);
                     collapsingToolbar.setTitle(clazz.getClazzName());
 
                 }catch (Exception e){
@@ -105,8 +105,6 @@ public class ClazzActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
-
-        Log.d(TAG, "onCreate: is here?");
 
         // 获取签到信息
         Call<List<Attendance>> listCall = attendanceService.getAttendanceByClazzId(clazzId);
