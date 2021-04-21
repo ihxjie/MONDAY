@@ -92,5 +92,4 @@
     <string name="batch_process_finished_info">处理完成！\n处理总数 =  %d \n成功数 = %d \n失败数 = %d \n处理失败的图片已保存在文件夹 \' %s \'</string>
 
 
-
 </resources>

@@ -18,6 +18,7 @@ import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.enums.RuntimeABI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.ihxjie.monday.activity.LocationActivity;
 import com.ihxjie.monday.face.activity.ChooseFunctionActivity;
 import com.ihxjie.monday.face.activity.RegisterAndRecognizeActivity;
 import com.ihxjie.monday.face.common.Constants;
@@ -120,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.face:
                 activeEngine();
                 startActivity(new Intent(this, RegisterAndRecognizeActivity.class));
+                break;
+            case R.id.location:
+                startActivity(new Intent(this, LocationActivity.class));
                 break;
             default:
                 break;
@@ -228,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                         if (activeCode == ErrorInfo.MOK) {
                             showToast(getString(R.string.active_success));
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
-                            showToast(getString(R.string.already_activated));
+                            return;
                         } else {
                             showToast(getString(R.string.active_failed, activeCode));
                         }

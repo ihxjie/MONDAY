@@ -13,4 +13,10 @@
         android:title="face"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/location"
+        android:icon="@drawable/location"
+        android:title="location"
+        app:showAsAction="always" />
+
 </menu>

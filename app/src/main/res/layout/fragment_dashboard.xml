@@ -5,40 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.dashboard.DashboardFragment">
-
-
-    <com.amap.api.maps.MapView
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-    </com.amap.api.maps.MapView>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="256dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="48dp"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            app:cardCornerRadius="100dp"
-            app:cardElevation="3dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/purple_500"
-                android:gravity="center_horizontal|center_vertical"
-                android:text="@string/sign_in"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp" />
-        </androidx.cardview.widget.CardView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>
