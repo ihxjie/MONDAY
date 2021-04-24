@@ -4,6 +4,13 @@
     <string name="title_dashboard">班级列表</string>
     <string name="title_notifications">通知</string>
     <string name="clazz_attendance">班级签到列表</string>
+    <string name="att_date_time">%1$s - %2$s</string>
+    <string name="att_click_str">点击签到</string>
+    <string name="att_qrcode_str">扫描二维码签到</string>
+    <string name="att_face_str">人脸识别签到</string>
+    <string name="att_location_str">获取地理位置签到</string>
+    <string name="engine_active">激活引擎</string>
+    <string name="face_register">人脸录入</string>
 
     <!--zxing相关-->
     <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>

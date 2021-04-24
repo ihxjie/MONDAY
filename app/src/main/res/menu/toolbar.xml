@@ -7,16 +7,4 @@
         android:title="scan"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/face"
-        android:icon="@drawable/face"
-        android:title="face"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/location"
-        android:icon="@drawable/location"
-        android:title="location"
-        app:showAsAction="always" />
-
 </menu>

@@ -1,17 +1,36 @@
 package com.ihxjie.monday.adapter;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ihxjie.monday.MainActivity;
 import com.ihxjie.monday.R;
+import com.ihxjie.monday.activity.AttClickActivity;
+import com.ihxjie.monday.activity.AttFaceActivity;
+import com.ihxjie.monday.activity.AttLocationActivity;
+import com.ihxjie.monday.activity.AttQrcodeActivity;
+import com.ihxjie.monday.activity.ClazzActivity;
+import com.ihxjie.monday.activity.FaceLocationActivity;
+import com.ihxjie.monday.activity.LocationActivity;
+import com.ihxjie.monday.activity.LocationQrcodeActivity;
 import com.ihxjie.monday.entity.Attendance;
+import com.ihxjie.monday.face.activity.RegisterAndRecognizeActivity;
+import com.ihxjie.monday.zxing.android.CaptureActivity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +39,8 @@ import java.util.List;
 public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder> {
     public Context context;
     private List<Attendance> mAttendanceList;
+    private static final int REQUEST_CODE_SCAN = 0x0000;
+    private static final int REQUEST_CODE_FACE = 0x0001;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View clazzView;
@@ -55,7 +76,23 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                 int position = holder.getLayoutPosition();
                 Attendance attendance = mAttendanceList.get(position);
                 if (attendance.getAttendanceType() == 1){
-
+                    Intent intent = new Intent(view.getContext(), AttClickActivity.class);
+                    intent.putExtra("attendance", attendance);
+                    view.getContext().startActivity(intent);
+                }else if (attendance.getAttendanceType() == 2){
+                    goScan(view.getContext());
+                }else if (attendance.getAttendanceType() == 3) {
+                    goLocation(view.getContext());
+                } else if (attendance.getAttendanceType() == 4) {
+                    goFace(view.getContext());
+                } else if (attendance.getAttendanceType() == 5) {
+                    Intent intent = new Intent(view.getContext(), FaceLocationActivity.class);
+                    intent.putExtra("attendance", attendance);
+                    view.getContext().startActivity(intent);
+                } else if (attendance.getAttendanceType() == 6) {
+                    Intent intent = new Intent(view.getContext(), LocationQrcodeActivity.class);
+                    intent.putExtra("attendance", attendance);
+                    view.getContext().startActivity(intent);
                 }
 
 
@@ -100,4 +137,30 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     public int getItemCount() {
         return mAttendanceList.size();
     }
+
+    private void goScan(Context context){
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 1);
+        } else {
+            Intent intent = new Intent(context, CaptureActivity.class);
+            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_SCAN);
+        }
+    }
+    private void goFace(Context context){
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 2);
+        } else {
+            Intent intent = new Intent(context, RegisterAndRecognizeActivity.class);
+            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
+        }
+    }
+    private void goLocation(Context context){
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.LOCATION_HARDWARE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.LOCATION_HARDWARE}, 3);
+        } else {
+            Intent intent = new Intent(context, LocationActivity.class);
+            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
+        }
+    }
+
 }

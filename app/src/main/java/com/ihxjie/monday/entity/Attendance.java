@@ -1,5 +1,6 @@
 package com.ihxjie.monday.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -7,7 +8,7 @@ import java.util.Date;
  * @author xjie
  * @date 2021/4/20 15:20
  */
-public class Attendance {
+public class Attendance implements Serializable {
     /**
      * 签到id
      */

@@ -1,6 +1,7 @@
 package com.ihxjie.monday.face.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.hardware.Camera;
@@ -18,6 +19,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.ihxjie.monday.R;
 import com.ihxjie.monday.face.faceserver.CompareResult;
@@ -181,7 +183,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
 
         // Activity启动后就锁定为启动时的方向
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        //本地人脸库初始化
+        //本地人脸库初始化s
         FaceServer.getInstance().init(this);
 
         initView();
@@ -693,6 +695,7 @@ public class RegisterAndRecognizeActivity extends BaseActivity implements ViewTr
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.setName(requestId, getString(R.string.recognize_success_notice, compareResult.getUserName()));
+                            Log.d(TAG, "onNext: " + compareResult.getUserName());
 
                         } else {
                             faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "NOT_REGISTERED"));

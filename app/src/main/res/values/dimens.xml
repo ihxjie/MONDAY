@@ -7,4 +7,7 @@
     <dimen name="dialog_padding_size">12dp</dimen>
     <dimen name="btn_close_margin_size">6dp</dimen>
     <dimen name="common_bottom_margin">20dp</dimen>
+
+    <dimen name="grid_2">16dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
 </resources>
