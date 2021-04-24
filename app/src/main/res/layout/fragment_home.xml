@@ -109,7 +109,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     app:backgroundTint="@color/primaryColor"
                     app:cornerRadius="10dp"
-                    app:icon="@drawable/engine"
+                    app:icon="@drawable/btn_face"
                     app:iconSize="30dp" />
 
             </LinearLayout>

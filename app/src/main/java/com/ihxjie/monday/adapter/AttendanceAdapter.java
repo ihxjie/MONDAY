@@ -29,6 +29,7 @@ import com.ihxjie.monday.activity.FaceLocationActivity;
 import com.ihxjie.monday.activity.LocationActivity;
 import com.ihxjie.monday.activity.LocationQrcodeActivity;
 import com.ihxjie.monday.entity.Attendance;
+import com.ihxjie.monday.face.activity.FaceRecognizeActivity;
 import com.ihxjie.monday.face.activity.RegisterAndRecognizeActivity;
 import com.ihxjie.monday.zxing.android.CaptureActivity;
 
@@ -150,13 +151,13 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 2);
         } else {
-            Intent intent = new Intent(context, RegisterAndRecognizeActivity.class);
+            Intent intent = new Intent(context, FaceRecognizeActivity.class);
             ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
         }
     }
     private void goLocation(Context context){
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.LOCATION_HARDWARE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.LOCATION_HARDWARE}, 3);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
         } else {
             Intent intent = new Intent(context, LocationActivity.class);
             ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);

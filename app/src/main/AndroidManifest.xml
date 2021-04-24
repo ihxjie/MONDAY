@@ -35,7 +35,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MONDAY">
-        <activity android:name=".activity.LocationQrcodeActivity"></activity>
+        <activity android:name=".face.activity.FaceRecognizeActivity"></activity>
+        <activity android:name=".activity.LocationQrcodeActivity" />
+        <activity android:name=".face.activity.RegisterFaceActivity" />
         <activity android:name=".activity.FaceLocationActivity" />
         <activity android:name=".activity.AttFaceActivity" />
         <activity android:name=".activity.AttLocationActivity" />

@@ -120,21 +120,6 @@ public class DashboardFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String url = data.getStringExtra(DECODED_CONTENT_KEY);
@@ -146,18 +131,15 @@ public class DashboardFragment extends Fragment {
     }
     private void goClass(String url){
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                OkHttpClient client = new OkHttpClient();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .build();
-                try {
-                    okhttp3.Response response = client.newCall(request).execute();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+        Runnable runnable = () -> {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+            try {
+                okhttp3.Response response = client.newCall(request).execute();
+            }catch (Exception e){
+                e.printStackTrace();
             }
         };
 

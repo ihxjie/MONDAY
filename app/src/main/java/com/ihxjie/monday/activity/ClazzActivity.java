@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,9 +34,11 @@ import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.Attendance;
 import com.ihxjie.monday.entity.Clazz;
 import com.ihxjie.monday.entity.ClazzInfo;
+import com.ihxjie.monday.face.activity.FaceRecognizeActivity;
 import com.ihxjie.monday.service.AttendanceService;
 import com.ihxjie.monday.service.ClazzService;
 import com.ihxjie.monday.util.BlurTransformation;
+import com.ihxjie.monday.zxing.android.CaptureActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -173,5 +176,28 @@ public class ClazzActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    startActivity(new Intent(context, CaptureActivity.class));
+                }else {
+                    Toast.makeText(this, "相机权限被拒绝!", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 2:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    startActivity(new Intent(context, FaceRecognizeActivity.class));
+                }else {
+                    Toast.makeText(this, "相机权限被拒绝!", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 3:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    startActivity(new Intent(context, LocationActivity.class));
+                }else {
+                    Toast.makeText(this, "定位权限被拒绝!", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
     }
 }

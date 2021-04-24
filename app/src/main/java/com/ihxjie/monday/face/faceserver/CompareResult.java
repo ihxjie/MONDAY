@@ -36,4 +36,13 @@ public class CompareResult {
     public void setTrackId(int trackId) {
         this.trackId = trackId;
     }
+
+    @Override
+    public String toString() {
+        return "CompareResult{" +
+                "userName='" + userName + '\'' +
+                ", similar=" + similar +
+                ", trackId=" + trackId +
+                '}';
+    }
 }

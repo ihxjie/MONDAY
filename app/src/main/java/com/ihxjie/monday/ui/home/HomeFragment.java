@@ -2,6 +2,7 @@ package com.ihxjie.monday.ui.home;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +33,7 @@ import com.ihxjie.monday.MainActivity;
 import com.ihxjie.monday.R;
 import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.CurrentUser;
+import com.ihxjie.monday.face.activity.RegisterFaceActivity;
 import com.ihxjie.monday.service.UserService;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +52,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.app.Activity.RESULT_OK;
+
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
@@ -59,6 +63,7 @@ public class HomeFragment extends Fragment {
             Manifest.permission.READ_PHONE_STATE
     };
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
+    private static final int REQUEST_CODE_FACE_REGISTER = 0x002;
 
     private Retrofit retrofit;
     private UserService userService;
@@ -111,8 +116,24 @@ public class HomeFragment extends Fragment {
                 activeEngine();
             }
         });
+        faceRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), RegisterFaceActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_FACE_REGISTER);
+            }
+        });
 
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == REQUEST_CODE_FACE_REGISTER && requestCode == RESULT_OK){
+            String faceId = data.getStringExtra("faceId");
+            Log.d(TAG, "onActivityResult: " + faceId);
+        }
     }
 
     /**
