@@ -69,6 +69,18 @@
                     android:gravity="center_horizontal"/>
 
                 <View
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/inset_divider"/>
+
+                <LinearLayout
+                    android:id="@+id/settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                </LinearLayout>
+
+                <View
                     android:id="@+id/divider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -98,7 +110,7 @@
                     app:iconSize="30dp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/faceRegister"
+                    android:id="@+id/face_register"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
@@ -110,6 +122,63 @@
                     app:backgroundTint="@color/primaryColor"
                     app:cornerRadius="10dp"
                     app:icon="@drawable/btn_face"
+                    app:iconSize="30dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/inset_divider"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="设置"
+                    android:textSize="12sp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/update_user_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/btn_update_user_info"
+                    android:textSize="25sp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    app:backgroundTint="@color/primaryColor"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/btn_face"
+                    app:iconSize="30dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/check_for_update"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/check_for_update"
+                    android:textSize="25sp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    app:backgroundTint="@color/primaryColor"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/btn_update"
+                    app:iconSize="30dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/loginActivity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="登录"
+                    android:textSize="25sp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    app:backgroundTint="@color/primaryColor"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/btn_update"
                     app:iconSize="30dp" />
 
             </LinearLayout>

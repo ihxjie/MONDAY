@@ -48,24 +48,15 @@
                 app:layout_constraintTop_toBottomOf="@id/avatar"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:orientation="vertical">
-
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="35sp"
-                    android:layout_margin="16dp"
-                    android:textColor="@color/black"
-                    android:gravity="center_horizontal"/>
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/group"
+                    android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginEnd="16dp"
-                    android:textSize="15sp"
-                    android:gravity="center_horizontal"/>
+                    android:text="@string/att_location_detail"
+                    android:textSize="15sp"/>
 
                 <View
                     android:id="@+id/divider"
@@ -73,42 +64,19 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/inset_divider"/>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="10dp"
-                    android:text="人脸识别模块"
-                    android:textSize="12sp" />
-
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/engineButton"
+                    android:id="@+id/btn_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:text="@string/engine_active"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/att_location"
                     android:textSize="25sp"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     app:backgroundTint="@color/primaryColor"
                     app:cornerRadius="10dp"
-                    app:icon="@drawable/engine"
-                    app:iconSize="30dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/faceRegister"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:text="@string/face_register"
-                    android:textSize="25sp"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    app:backgroundTint="@color/primaryColor"
-                    app:cornerRadius="10dp"
-                    app:icon="@drawable/btn_face"
+                    app:icon="@drawable/location"
                     app:iconSize="30dp" />
 
             </LinearLayout>

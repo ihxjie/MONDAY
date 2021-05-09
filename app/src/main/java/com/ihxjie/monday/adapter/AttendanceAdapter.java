@@ -42,6 +42,8 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     private List<Attendance> mAttendanceList;
     private static final int REQUEST_CODE_SCAN = 0x0000;
     private static final int REQUEST_CODE_FACE = 0x0001;
+    private static final int REQUEST_CODE_LOCATION = 0x0002;
+    private static final int REQUEST_CODE_CLICK = 0x0003;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View clazzView;
@@ -83,9 +85,9 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                 }else if (attendance.getAttendanceType() == 2){
                     goScan(view.getContext());
                 }else if (attendance.getAttendanceType() == 3) {
-                    goLocation(view.getContext());
+                    goLocation(view.getContext(), attendance);
                 } else if (attendance.getAttendanceType() == 4) {
-                    goFace(view.getContext());
+                    goFace(view.getContext(), attendance);
                 } else if (attendance.getAttendanceType() == 5) {
                     Intent intent = new Intent(view.getContext(), FaceLocationActivity.class);
                     intent.putExtra("attendance", attendance);
@@ -147,20 +149,22 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             ((Activity)context).startActivityForResult(intent, REQUEST_CODE_SCAN);
         }
     }
-    private void goFace(Context context){
+    private void goFace(Context context, Attendance attendance){
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 2);
         } else {
             Intent intent = new Intent(context, FaceRecognizeActivity.class);
+            intent.putExtra("attendance", attendance);
             ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
         }
     }
-    private void goLocation(Context context){
+    private void goLocation(Context context, Attendance attendance){
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
         } else {
             Intent intent = new Intent(context, LocationActivity.class);
-            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
+            intent.putExtra("attendance", attendance);
+            context.startActivity(intent);
         }
     }
 

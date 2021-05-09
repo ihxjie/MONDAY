@@ -1,5 +1,7 @@
 package com.ihxjie.monday.entity;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -33,6 +35,21 @@ public class Attendance implements Serializable {
      * 签到方式（普通签到：1；二维码签到：2；地理位置签到：3；人脸识别签到：4；人脸+地理位置签到：5；地理位置+二维码签到：6）
      */
     private Integer attendanceType;
+
+    /**
+     * 签到经度
+     */
+    private String attLongitude;
+
+    /**
+     * 签到纬度
+     */
+    private String attLatitude;
+
+    /**
+     * 签到精度
+     */
+    private String attAccuracy;
 
     public Long getAttendanceId() {
         return attendanceId;
@@ -74,6 +91,19 @@ public class Attendance implements Serializable {
         this.attendanceType = attendanceType;
     }
 
+    public String getAttLongitude() {
+        return attLongitude;
+    }
+
+    public String getAttLatitude() {
+        return attLatitude;
+    }
+
+    public String getAttAccuracy() {
+        return attAccuracy;
+    }
+
+    @NotNull
     @Override
     public String toString() {
         return "Attendance{" +
@@ -82,6 +112,9 @@ public class Attendance implements Serializable {
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", attendanceType=" + attendanceType +
+                ", attLongitude='" + attLongitude + '\'' +
+                ", attLatitude='" + attLatitude + '\'' +
+                ", attAccuracy='" + attAccuracy + '\'' +
                 '}';
     }
 }

@@ -28,19 +28,23 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ihxjie.monday.R;
 import com.ihxjie.monday.adapter.AttendanceAdapter;
 import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.Attendance;
 import com.ihxjie.monday.entity.Clazz;
 import com.ihxjie.monday.entity.ClazzInfo;
+import com.ihxjie.monday.entity.PositionInfo;
 import com.ihxjie.monday.face.activity.FaceRecognizeActivity;
 import com.ihxjie.monday.service.AttendanceService;
 import com.ihxjie.monday.service.ClazzService;
+import com.ihxjie.monday.service.RecordService;
 import com.ihxjie.monday.util.BlurTransformation;
 import com.ihxjie.monday.zxing.android.CaptureActivity;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
@@ -58,10 +62,13 @@ public class ClazzActivity extends AppCompatActivity {
     private static final String DECODED_BITMAP_KEY = "codedBitmap";
     private static final int REQUEST_CODE_SCAN = 0x0000;
     private static final int REQUEST_CODE_FACE = 0x0001;
+    private static final int REQUEST_CODE_LOCATION = 0x0002;
+    private static final int REQUEST_CODE_CLICK = 0x0003;
 
     private Retrofit retrofit;
     private ClazzService clazzService;
     private AttendanceService attendanceService;
+    private RecordService recordService;
 
     private ImageView imageView;
     private RecyclerView mRecyclerView;
@@ -145,10 +152,9 @@ public class ClazzActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -156,20 +162,20 @@ public class ClazzActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-            if (data != null) {
-                //返回的文本内容
-                String content = data.getStringExtra(DECODED_CONTENT_KEY);
-                //返回的BitMap图像
-                Bitmap bitmap = data.getParcelableExtra(DECODED_BITMAP_KEY);
-
-                Toast.makeText(this, "你扫描到的内容是：" + content, Toast.LENGTH_SHORT).show();
-            }
-        }
-        if (requestCode == REQUEST_CODE_FACE && resultCode == RESULT_OK) {
-            if (data != null) {
-                Toast.makeText(this, "FACE RECOGNIZE", Toast.LENGTH_SHORT).show();
-            }
+        switch (requestCode){
+            case REQUEST_CODE_SCAN:
+                if (resultCode == RESULT_OK && data != null){
+                    String content = data.getStringExtra(DECODED_CONTENT_KEY);
+                    submitAttQrcode(content);
+                }
+                break;
+            case REQUEST_CODE_FACE:
+                if (resultCode == RESULT_OK && data != null){
+                    Attendance attendance = (Attendance) data.getSerializableExtra("attendance");
+                    submitAttFace(attendance.getAttendanceId());
+                }
+                break;
+            default:
         }
     }
 
@@ -199,5 +205,48 @@ public class ClazzActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    private void showToast(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void submitAttQrcode(String attendanceId){
+
+        recordService = retrofit.create(RecordService.class);
+        Call<String> call = recordService.attQrcode(Long.parseLong(attendanceId));
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
+                showToast(response.body());
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
+                showToast(t.getMessage());
+            }
+        });
+    }
+
+    private void submitAttFace(Long attendanceId){
+
+        Gson gson = new GsonBuilder().setLenient().create();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.host)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        recordService = retrofit.create(RecordService.class);
+        Call<String> call = recordService.attFace(attendanceId);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
+                showToast(response.body());
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
+                showToast(t.getMessage());
+            }
+        });
     }
 }

@@ -11,6 +11,13 @@
     <string name="att_location_str">获取地理位置签到</string>
     <string name="engine_active">激活引擎</string>
     <string name="face_register">人脸录入</string>
+    <string name="fingerprint_sign_in">指纹快捷登录</string>
+    <string name="face_sign_in">人脸快捷登录</string>
+    <string name="btn_update_user_info">修改个人信息</string>
+    <string name="check_for_update">检查更新</string>
+    <string name="btn_update_user">修改</string>
+    <string name="att_location">位置签到</string>
+    <string name="att_location_detail">经度：%1$s 纬度：%2$s \n距离签到中心点：%3$f米</string>
 
     <!--zxing相关-->
     <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
@@ -97,6 +104,22 @@
     <string name="batch_process_path_is_not_dir">路径 \n%s\n 不是文件夹</string>
     <string name="batch_process_processing_please_wait">处理中，请稍等</string>
     <string name="batch_process_finished_info">处理完成！\n处理总数 =  %d \n成功数 = %d \n失败数 = %d \n处理失败的图片已保存在文件夹 \' %s \'</string>
+    <string name="real_name">真实姓名</string>
+    <string name="user_tel">用户电话</string>
+    <string name="user_email">用户邮箱</string>
+    <string name="user_signature">个性签名</string>
+    <string name="user_title">用户身份</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">邮箱</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="welcome">"欢迎 !"</string>
+    <string name="invalid_username">用户名不合规</string>
+    <string name="invalid_password">密码需要大于5位数</string>
+    <string name="login_failed">"登录失败"</string>
+    <string name="notification_title">通知中心</string>
+    <string name="notice_time_prefix">发布时间：</string>
 
 
 </resources>

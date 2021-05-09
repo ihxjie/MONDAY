@@ -14,17 +14,37 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ihxjie.monday.R;
+import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.Attendance;
+import com.ihxjie.monday.service.AttendanceService;
+import com.ihxjie.monday.service.ClazzService;
+import com.ihxjie.monday.service.RecordService;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AttClickActivity extends AppCompatActivity {
     private static final String TAG = "AttClickActivity";
 
     private Toolbar toolbar;
+    private MaterialButton button;
+
+    private Retrofit retrofit;
+    private RecordService recordService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +62,11 @@ public class AttClickActivity extends AppCompatActivity {
         setContentView(R.layout.activity_att_click);
 
         toolbar = findViewById(R.id.toolbar);
+        button = findViewById(R.id.materialButton);
+
+        button.setOnClickListener(v -> {
+            submitAttClick(attendance.getAttendanceId());
+        });
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -59,6 +84,31 @@ public class AttClickActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showToast(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void submitAttClick(Long attendanceId){
+        Gson gson = new GsonBuilder().setLenient().create();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.host)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        recordService = retrofit.create(RecordService.class);
+        Call<String> call = recordService.attClick(attendanceId);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
+                showToast(response.body());
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
+                showToast(t.getMessage());
+            }
+        });
     }
 
 }

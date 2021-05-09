@@ -24,6 +24,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ihxjie.monday.R;
+import com.ihxjie.monday.entity.Attendance;
 import com.ihxjie.monday.face.faceserver.CompareResult;
 import com.ihxjie.monday.face.faceserver.FaceServer;
 import com.ihxjie.monday.face.model.DrawInfo;
@@ -155,8 +156,6 @@ public class FaceRecognizeActivity extends BaseActivity implements ViewTreeObser
      * 绘制人脸框的控件
      */
     private FaceRectView faceRectView;
-
-    private Switch switchLivenessDetect;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
@@ -694,7 +693,9 @@ public class FaceRecognizeActivity extends BaseActivity implements ViewTreeObser
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.setName(requestId, getString(R.string.recognize_success_notice, compareResult.getUserName()));
-                            showToast("人脸认证成功");
+                            // showToast("人脸认证成功");
+                            Intent intent = getIntent();
+                            setResult(RESULT_OK, intent);
                             finish();
 
                         } else {

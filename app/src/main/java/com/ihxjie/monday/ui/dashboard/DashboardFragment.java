@@ -73,12 +73,9 @@ public class DashboardFragment extends Fragment {
         mSwipeRefreshLayout.setColorSchemeResources(R.color.teal_700);
         mSwipeRefreshLayout.setOnRefreshListener(this::queryClasses);
         button = root.findViewById(R.id.scan_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), CaptureActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_SCAN);
-            }
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CaptureActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_SCAN);
         });
 
         return root;

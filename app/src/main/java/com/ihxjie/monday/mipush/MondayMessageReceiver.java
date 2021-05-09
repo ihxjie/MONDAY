@@ -13,6 +13,9 @@ import com.xiaomi.mipush.sdk.PushMessageReceiver;
 import java.util.List;
 
 public class MondayMessageReceiver extends PushMessageReceiver {
+
+    private static final String TAG = "MondayMessageReceiver";
+
     private String mRegId;
     private long mResultCode = -1;
     private String mReason;
