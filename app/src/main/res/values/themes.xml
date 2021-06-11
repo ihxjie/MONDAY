@@ -13,4 +13,8 @@
     <style name="ClazzActivityTheme" parent="Theme.MONDAY">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+    <style name="CornerStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

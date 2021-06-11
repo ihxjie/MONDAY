@@ -3,6 +3,7 @@ package com.ihxjie.monday.ui.dashboard;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,6 +32,7 @@ import com.ihxjie.monday.R;
 import com.ihxjie.monday.adapter.ClazzAdapter;
 import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.ClazzInfo;
+import com.ihxjie.monday.mipush.PushApplication;
 import com.ihxjie.monday.service.ClazzService;
 import com.ihxjie.monday.zxing.android.CaptureActivity;
 
@@ -83,6 +86,8 @@ public class DashboardFragment extends Fragment {
 
 
     private void queryClasses(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(PushApplication.getContext());
+        String userId = sharedPreferences.getString("userId", "");
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.host)
@@ -90,7 +95,7 @@ public class DashboardFragment extends Fragment {
                 .build();
 
         clazzService = retrofit.create(ClazzService.class);
-        Call<List<ClazzInfo>> call = clazzService.queryStuClazz();
+        Call<List<ClazzInfo>> call = clazzService.queryStuClazz(userId);
         call.enqueue(new Callback<List<ClazzInfo>>() {
             @Override
             public void onResponse(@NotNull Call<List<ClazzInfo>> call, @NotNull Response<List<ClazzInfo>> response) {
@@ -119,19 +124,23 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String url = data.getStringExtra(DECODED_CONTENT_KEY);
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
+                String url = data.getStringExtra(DECODED_CONTENT_KEY);
                 goClass(url);
             }
         }
     }
     private void goClass(String url){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(PushApplication.getContext());
+        String userId = sharedPreferences.getString("userId", "");
+        String path = url + "/" + userId;
+
 
         Runnable runnable = () -> {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url(url)
+                    .url(path)
                     .build();
             try {
                 okhttp3.Response response = client.newCall(request).execute();

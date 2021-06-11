@@ -13,13 +13,13 @@ import retrofit2.http.Query;
 
 public interface ClazzService {
     @GET("/api/mobile/queryStuClazz")
-    Call<List<ClazzInfo>> queryStuClazz();
+    Call<List<ClazzInfo>> queryStuClazz(@Query("userId") String userId);
 
     @GET("/api/mobile/getClazzInfo")
     Call<Clazz> getClazzInfo(@Query("clazzId") String clazzId);
 
     @GET("/api/mobile/quitClazz")
-    Call<String> quitClazz(@Query("clazzId") String clazzId);
+    Call<String> quitClazz(@Query("clazzId") String clazzId, @Query("userId") String userId);
 
     @GET("/mobile/go-class/{clazzId}")
     Call<Map<String, Object>> goClass(@Path("clazzId") String clazzId);

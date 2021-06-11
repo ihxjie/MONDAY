@@ -1,8 +1,10 @@
 package com.ihxjie.monday.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -60,6 +62,9 @@ public class LocationActivity extends AppCompatActivity {
     private double longitude;
     private double latitude;
     private double distance;
+    private double accuracy;
+
+    private boolean canAtt;
 
     private PositionInfo positionInfo;
 
@@ -72,6 +77,7 @@ public class LocationActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         setContentView(R.layout.activity_location);
+        canAtt = false;
 
         Attendance attendance = (Attendance) getIntent().getSerializableExtra("attendance");
         positionInfo = new PositionInfo();
@@ -91,6 +97,7 @@ public class LocationActivity extends AppCompatActivity {
 
         longitude = Double.parseDouble(attendance.getAttLongitude());
         latitude = Double.parseDouble(attendance.getAttLatitude());
+        accuracy = Double.parseDouble(attendance.getAttAccuracy());
         double radius = Double.parseDouble(attendance.getAttAccuracy());
         LatLng latLng = new LatLng(latitude, longitude);
         aMap.addCircle(new CircleOptions()
@@ -104,8 +111,13 @@ public class LocationActivity extends AppCompatActivity {
         startLocation();
 
         button.setOnClickListener(v -> {
-            submitAttGps(positionInfo);
-            stopLocation();
+            if (canAtt){
+                submitAttGps(positionInfo);
+                stopLocation();
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "签到失败！未在签到范围内", Toast.LENGTH_SHORT).show();
+            }
         });
         
     }
@@ -147,10 +159,14 @@ public class LocationActivity extends AppCompatActivity {
             positionInfo.setAttendanceId(attendance.getAttendanceId());
             textView.setText(String.format(getResources().getString(R.string.att_location_detail),
                     positionInfo.getLongitude(), positionInfo.getLatitude(), distance));
-            if (distance <= 30){
+            Log.d(TAG, "distance: " + distance);
+            Log.d(TAG, "accuracy: " + accuracy);
+            if (distance <= accuracy){
                 imageView.setImageResource(R.drawable.confirm);
+                canAtt = true;
             }else {
                 imageView.setImageResource(R.drawable.error);
+                canAtt = false;
             }
             // submitAttGps(positionInfo);
 
@@ -208,6 +224,8 @@ public class LocationActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
     private void submitAttGps(PositionInfo positionInfo){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userId = sharedPreferences.getString("userId", "");
 
         Gson gson = new GsonBuilder().setLenient().create();
         retrofit = new Retrofit.Builder()
@@ -215,7 +233,7 @@ public class LocationActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         recordService = retrofit.create(RecordService.class);
-        Call<String> call = recordService.attGps(positionInfo);
+        Call<String> call = recordService.attGps(userId, positionInfo);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {

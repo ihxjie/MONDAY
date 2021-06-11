@@ -1,9 +1,9 @@
 package com.ihxjie.monday.ui.home;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceFragment;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -42,17 +39,16 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
-import com.ihxjie.monday.MainActivity;
 import com.ihxjie.monday.R;
+import com.ihxjie.monday.activity.LoginActivity;
 import com.ihxjie.monday.activity.UserInfoActivity;
 import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.entity.CurrentUser;
 import com.ihxjie.monday.face.activity.RegisterFaceActivity;
+import com.ihxjie.monday.mipush.PushApplication;
 import com.ihxjie.monday.service.UserService;
-import com.ihxjie.monday.ui.login.LoginActivity;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -70,7 +66,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.PRINT_SERVICE;
 
 public class HomeFragment extends Fragment {
 
@@ -82,6 +78,9 @@ public class HomeFragment extends Fragment {
     };
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final int REQUEST_CODE_FACE_REGISTER = 0x002;
+    private static final int REQUEST_CODE_USERINFO_UPDATE = 0x005;
+
+    private View root;
 
     private Retrofit retrofit;
     private UserService userService;
@@ -90,15 +89,14 @@ public class HomeFragment extends Fragment {
     private TextView username;
     private TextView group;
 
-    private MaterialButton activeEngine;
-    private MaterialButton faceRegister;
-    private MaterialButton fingerprintRegister;
     private MaterialButton updateUserInfo;
     private MaterialButton login;
 
+    private SharedPreferences sharedPreferences;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
+        root = inflater.inflate(R.layout.fragment_home, container, false);
 
         if (savedInstanceState == null) {
             getParentFragmentManager()
@@ -106,23 +104,46 @@ public class HomeFragment extends Fragment {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        boolean isEngineActive = sharedPreferences.getBoolean("isEngineActive", false);
+        if (!isEngineActive){
+            // Toast.makeText(requireContext(), "人脸识别引擎正在初始化，请稍等", Toast.LENGTH_SHORT).show();
+            activeEngine();
+        }
         avatar = root.findViewById(R.id.avatar);
         username = root.findViewById(R.id.username);
         group = root.findViewById(R.id.group);
 
-        activeEngine = root.findViewById(R.id.engineButton);
-        faceRegister = root.findViewById(R.id.face_register);
         // fingerprintRegister = root.findViewById(R.id.fingerprint_register);
         updateUserInfo = root.findViewById(R.id.update_user_info);
         login = root.findViewById(R.id.loginActivity);
-
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.host)
                 .addConverterFactory(GsonConverterFactory.create(new Gson()))
                 .build();
         userService = retrofit.create(UserService.class);
-        Call<CurrentUser> call = userService.getCurrentUser();
+
+        // 获取并渲染用户信息
+        Intent intent = requireActivity().getIntent();
+        String userId = intent.getStringExtra("userId");
+        getUserInfo();
+
+        login.setOnClickListener(v -> {
+            startActivity(new Intent(getContext(), LoginActivity.class));
+        });
+
+        return root;
+    }
+
+    /**
+     * 获取并渲染用户信息
+     */
+    private void getUserInfo(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(PushApplication.getContext());
+        String userId = sharedPreferences.getString("userId", "");
+        Log.d(TAG, "getUserInfo: " + userId);
+
+        Call<CurrentUser> call = userService.getCurrentUser(userId);
         call.enqueue(new Callback<CurrentUser>() {
             @Override
             public void onResponse(@NotNull Call<CurrentUser> call, @NotNull Response<CurrentUser> response) {
@@ -137,7 +158,7 @@ public class HomeFragment extends Fragment {
                 updateUserInfo.setOnClickListener(v -> {
                     Intent intent = new Intent(getContext(), UserInfoActivity.class);
                     intent.putExtra("currentUser", currentUser);
-                    startActivity(intent);
+                    startActivityForResult(intent, REQUEST_CODE_USERINFO_UPDATE);
                 });
 
             }
@@ -147,34 +168,26 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
-        activeEngine.setOnClickListener(v -> activeEngine());
-        faceRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), RegisterFaceActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_FACE_REGISTER);
-        });
-
-        updateUserInfo.setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), UserInfoActivity.class));
-        });
-
-        login.setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), LoginActivity.class));
-        });
-
-        return root;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == REQUEST_CODE_FACE_REGISTER && requestCode == RESULT_OK){
-            if (data != null){
-                String faceId = data.getStringExtra("faceId");
-                Log.d(TAG, "onActivityResult: " + faceId);
-            }
 
+        switch (requestCode){
+            case REQUEST_CODE_FACE_REGISTER:
+                if (resultCode == RESULT_OK && data != null){
+                    String faceId = data.getStringExtra("faceId");
+                    Log.d(TAG, "onActivityResult: " + faceId);
+                }
+                break;
+            case REQUEST_CODE_USERINFO_UPDATE:
+                if (resultCode == RESULT_OK && data != null){
+                    getUserInfo();
+                }
+                break;
         }
+
     }
 
     /**
@@ -198,7 +211,6 @@ public class HomeFragment extends Fragment {
      * 激活引擎
      */
     public void activeEngine() {
-
         if (!checkPermissions(NEEDED_PERMISSIONS)) {
             ActivityCompat.requestPermissions(requireActivity(), NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
             return;
@@ -229,7 +241,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onNext(@NotNull Integer activeCode) {
                         if (activeCode == ErrorInfo.MOK) {
-                            Toast.makeText(getContext(), R.string.active_success, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getContext(), R.string.active_success, Toast.LENGTH_SHORT).show();
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
                             Toast.makeText(getContext(), R.string.already_activated, Toast.LENGTH_SHORT).show();
                         } else {
@@ -241,6 +253,9 @@ public class HomeFragment extends Fragment {
                         if (res == ErrorInfo.MOK) {
                             Log.i(TAG, activeFileInfo.toString());
                         }
+                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(requireContext()).edit();
+                        editor.putBoolean("isEngineActive", true);
+                        editor.apply();
 
                     }
 
@@ -255,15 +270,20 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * 快捷登录
+     */
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            setPreferencesFromResource(R.xml.quick_login_preferences, rootKey);
             SwitchPreferenceCompat fingerprintSignIn = findPreference("fingerprintSignIn");
+            SwitchPreferenceCompat faceSignIn = findPreference("faceSignIn");
 
+            // 指纹快捷登录
             assert fingerprintSignIn != null;
             fingerprintSignIn.setOnPreferenceChangeListener((preference, newValue) -> {
-                Log.d(TAG, "onCreatePreferences: " + newValue);
 
                 boolean isOpen = (boolean) newValue;
                 if (!isOpen){
@@ -289,6 +309,7 @@ public class HomeFragment extends Fragment {
                                         //Do nothing
                                         Log.d("TAG", "onAuthenticationError: " + errorCode + ", str: " + errString);
                                         Toast.makeText(requireContext(), errString, Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(Settings.ACTION_SETTINGS));
                                     }
                                 };
 
@@ -304,9 +325,44 @@ public class HomeFragment extends Fragment {
                         bp.authenticate(new CancellationSignal(), handler::post, authenticationCallback);
                     } else {
                         Log.d("TAG", "showLockScreen:  no in secure.... no password");
-                        Toast.makeText(requireContext(), "请检查是否设置手机锁屏密码", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "未找到指纹信息,请在系统中录入指纹", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Settings.ACTION_SETTINGS));
                     }
                 }
+                return false;
+            });
+
+            assert faceSignIn != null;
+            faceSignIn.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                boolean isOpen = (boolean) newValue;
+                if (!isOpen){
+                    editor.putBoolean("faceActive", false);
+                    editor.apply();
+                    faceSignIn.setChecked(false);
+                    Toast.makeText(requireContext(), "已关闭人脸识别登录", Toast.LENGTH_SHORT).show();
+
+                }else {
+                    String faceId = sharedPreferences.getString("faceId", "");
+
+                    if (!faceId.equals("")){
+                        faceSignIn.setChecked(true);
+                        Toast.makeText(requireContext(), "已开启人脸识别登录", Toast.LENGTH_SHORT).show();
+                    }else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage("未检测到人脸信息，是否先录入人脸信息？")
+                                .setPositiveButton("录入", (dialog, which) -> {
+                                    Intent intent = new Intent(requireContext(), RegisterFaceActivity.class);
+                                    startActivityForResult(intent, REQUEST_CODE_FACE_REGISTER);
+                                })
+                                .setNegativeButton("取消", (dialog, which) -> {
+
+                                });
+                        builder.show();
+                    }
+                }
+
                 return false;
             });
         }

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".face.activity.IrRegisterAndRecognizeActivity">
+    tools:context=".face.activity.IrRegisterAndRecognizeActivity"
+    tools:ignore="MissingDefaultResource">
 
     <LinearLayout
         android:id="@+id/dual_camera_ll_parent"

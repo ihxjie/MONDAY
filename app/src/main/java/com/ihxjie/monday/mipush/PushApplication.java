@@ -17,10 +17,12 @@ public class PushApplication extends Application {
     public static final String APP_ID = "2882303761519857848";
     public static final String APP_KEY = "5291985720848";
     public static final String TAG = "PushApplication";
+    private static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        context = getApplicationContext();
         //初始化push推送服务
         if(shouldInit()) {
             MiPushClient.registerPush(this, APP_ID, APP_KEY);
@@ -56,5 +58,8 @@ public class PushApplication extends Application {
             }
         }
         return false;
+    }
+    public static Context getContext() {
+        return context;
     }
 }

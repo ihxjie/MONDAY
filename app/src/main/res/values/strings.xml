@@ -17,6 +17,8 @@
     <string name="check_for_update">检查更新</string>
     <string name="btn_update_user">修改</string>
     <string name="att_location">位置签到</string>
+    <string name="att_location_face">人脸+地理位置签到</string>
+    <string name="att_location_qrcode">地理位置+二维码签到</string>
     <string name="att_location_detail">经度：%1$s 纬度：%2$s \n距离签到中心点：%3$f米</string>
 
     <!--zxing相关-->
@@ -116,10 +118,11 @@
     <string name="action_sign_in_short">登录</string>
     <string name="welcome">"欢迎 !"</string>
     <string name="invalid_username">用户名不合规</string>
-    <string name="invalid_password">密码需要大于5位数</string>
+    <string name="invalid_password">密码需要大于3位数</string>
     <string name="login_failed">"登录失败"</string>
     <string name="notification_title">通知中心</string>
     <string name="notice_time_prefix">发布时间：</string>
+    <string name="user_info_header">用户信息</string>
 
 
 </resources>

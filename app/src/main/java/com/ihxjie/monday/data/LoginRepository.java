@@ -1,6 +1,25 @@
 package com.ihxjie.monday.data;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import androidx.preference.PreferenceManager;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.ihxjie.monday.MainActivity;
+import com.ihxjie.monday.common.Constants;
 import com.ihxjie.monday.data.model.LoggedInUser;
+import com.ihxjie.monday.entity.MobileUser;
+import com.ihxjie.monday.mipush.PushApplication;
+import com.ihxjie.monday.service.UserService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -44,6 +63,7 @@ public class LoginRepository {
     }
 
     public Result<LoggedInUser> login(String username, String password) {
+
         // handle login
         Result<LoggedInUser> result = dataSource.login(username, password);
         if (result instanceof Result.Success) {

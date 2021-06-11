@@ -2,9 +2,12 @@ package com.ihxjie.monday.adapter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +19,7 @@ import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ihxjie.monday.MainActivity;
@@ -31,6 +35,7 @@ import com.ihxjie.monday.activity.LocationQrcodeActivity;
 import com.ihxjie.monday.entity.Attendance;
 import com.ihxjie.monday.face.activity.FaceRecognizeActivity;
 import com.ihxjie.monday.face.activity.RegisterAndRecognizeActivity;
+import com.ihxjie.monday.face.activity.RegisterFaceActivity;
 import com.ihxjie.monday.zxing.android.CaptureActivity;
 
 import java.time.LocalDateTime;
@@ -38,12 +43,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.ViewHolder> {
+    private static final String TAG = "AttendanceAdapter";
     public Context context;
     private List<Attendance> mAttendanceList;
     private static final int REQUEST_CODE_SCAN = 0x0000;
     private static final int REQUEST_CODE_FACE = 0x0001;
-    private static final int REQUEST_CODE_LOCATION = 0x0002;
-    private static final int REQUEST_CODE_CLICK = 0x0003;
+    private static final int REQUEST_CODE_FACE_REGISTER = 0x002;
+    private static final int REQUEST_CODE_LOCATION_FACE = 0x003;
+
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View clazzView;
@@ -73,33 +80,29 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     public AttendanceAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.attendance_item, parent, false);
         AttendanceAdapter.ViewHolder holder = new AttendanceAdapter.ViewHolder(view);
-        holder.clazzView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = holder.getLayoutPosition();
-                Attendance attendance = mAttendanceList.get(position);
-                if (attendance.getAttendanceType() == 1){
-                    Intent intent = new Intent(view.getContext(), AttClickActivity.class);
-                    intent.putExtra("attendance", attendance);
-                    view.getContext().startActivity(intent);
-                }else if (attendance.getAttendanceType() == 2){
-                    goScan(view.getContext());
-                }else if (attendance.getAttendanceType() == 3) {
-                    goLocation(view.getContext(), attendance);
-                } else if (attendance.getAttendanceType() == 4) {
-                    goFace(view.getContext(), attendance);
-                } else if (attendance.getAttendanceType() == 5) {
-                    Intent intent = new Intent(view.getContext(), FaceLocationActivity.class);
-                    intent.putExtra("attendance", attendance);
-                    view.getContext().startActivity(intent);
-                } else if (attendance.getAttendanceType() == 6) {
-                    Intent intent = new Intent(view.getContext(), LocationQrcodeActivity.class);
-                    intent.putExtra("attendance", attendance);
-                    view.getContext().startActivity(intent);
-                }
+        holder.clazzView.setOnClickListener(v -> {
+            int position = holder.getLayoutPosition();
+            Attendance attendance = mAttendanceList.get(position);
 
-
+            if (attendance.getAttendanceType() == 1){
+                Intent intent = new Intent(view.getContext(), AttClickActivity.class);
+                intent.putExtra("attendance", attendance);
+                view.getContext().startActivity(intent);
+            }else if (attendance.getAttendanceType() == 2){
+                goScan(view.getContext());
+            }else if (attendance.getAttendanceType() == 3) {
+                goLocation(view.getContext(), attendance);
+            } else if (attendance.getAttendanceType() == 4) {
+                goFace(view.getContext(), attendance);
+            } else if (attendance.getAttendanceType() == 5) {
+                goLocationFace(view.getContext(), attendance);
+            } else if (attendance.getAttendanceType() == 6) {
+                Intent intent = new Intent(view.getContext(), LocationQrcodeActivity.class);
+                intent.putExtra("attendance", attendance);
+                view.getContext().startActivity(intent);
             }
+
+
         });
         return holder;
     }
@@ -153,11 +156,54 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 2);
         } else {
-            Intent intent = new Intent(context, FaceRecognizeActivity.class);
-            intent.putExtra("attendance", attendance);
-            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+            String faceId = sharedPreferences.getString("faceId", "");
+            if (!faceId.equals("")){
+                Intent intent = new Intent(context, FaceRecognizeActivity.class);
+                intent.putExtra("attendance", attendance);
+                ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE);
+            }else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setMessage("未检测到人脸信息，是否先录入人脸信息？")
+                        .setPositiveButton("录入", (dialog, which) -> {
+                            Intent intent = new Intent(context, RegisterFaceActivity.class);
+                            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE_REGISTER);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+
+                        });
+                builder.show();
+            }
+
         }
     }
+
+    private void goLocationFace(Context context, Attendance attendance){
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.CAMERA}, 2);
+        } else {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+            String faceId = sharedPreferences.getString("faceId", "");
+            if (!faceId.equals("")){
+                Intent intent = new Intent(context, FaceRecognizeActivity.class);
+                intent.putExtra("attendance", attendance);
+                ((Activity)context).startActivityForResult(intent, REQUEST_CODE_LOCATION_FACE);
+            }else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setMessage("未检测到人脸信息，是否先录入人脸信息？")
+                        .setPositiveButton("录入", (dialog, which) -> {
+                            Intent intent = new Intent(context, RegisterFaceActivity.class);
+                            ((Activity)context).startActivityForResult(intent, REQUEST_CODE_FACE_REGISTER);
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+
+                        });
+                builder.show();
+            }
+
+        }
+    }
+
     private void goLocation(Context context, Attendance attendance){
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(((Activity)context), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);

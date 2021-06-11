@@ -1,5 +1,6 @@
 package com.ihxjie.monday.ui.notifications;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,12 +50,14 @@ public class NotificationsFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        String userId = sharedPreferences.getString("userId", "");
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.host)
                 .addConverterFactory(GsonConverterFactory.create(new Gson()))
                 .build();
         noticeService = retrofit.create(NoticeService.class);
-        Call<List<Notice>> call = noticeService.getStuNotice();
+        Call<List<Notice>> call = noticeService.getStuNotice(userId);
         call.enqueue(new Callback<List<Notice>>() {
             @Override
             public void onResponse(@NotNull Call<List<Notice>> call, @NotNull Response<List<Notice>> response) {

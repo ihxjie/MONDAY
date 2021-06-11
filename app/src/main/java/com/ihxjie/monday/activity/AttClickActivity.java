@@ -5,8 +5,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -91,13 +93,15 @@ public class AttClickActivity extends AppCompatActivity {
     }
 
     private void submitAttClick(Long attendanceId){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userId = sharedPreferences.getString("userId", "");
         Gson gson = new GsonBuilder().setLenient().create();
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.host)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         recordService = retrofit.create(RecordService.class);
-        Call<String> call = recordService.attClick(attendanceId);
+        Call<String> call = recordService.attClick(userId, attendanceId);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {

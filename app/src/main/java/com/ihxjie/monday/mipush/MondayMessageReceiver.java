@@ -1,16 +1,32 @@
 package com.ihxjie.monday.mipush;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.preference.PreferenceManager;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.ihxjie.monday.common.Constants;
+import com.ihxjie.monday.entity.PushVo;
+import com.ihxjie.monday.service.PushService;
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
 import com.xiaomi.mipush.sdk.MiPushMessage;
 import com.xiaomi.mipush.sdk.PushMessageReceiver;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MondayMessageReceiver extends PushMessageReceiver {
 
@@ -105,6 +121,30 @@ public class MondayMessageReceiver extends PushMessageReceiver {
                 mRegId = cmdArg1;
             }
         }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        String userId = sharedPreferences.getString("userId", "");
+
+        Gson gson = new GsonBuilder().setLenient().create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.host)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        PushService pushService = retrofit.create(PushService.class);
+        PushVo pushVo = new PushVo();
+        pushVo.setUserId(Integer.parseInt(userId));
+        pushVo.setRegId(mRegId);
+        Call<String> call = pushService.updateRegId(pushVo);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
+                Log.i(TAG, "onResponse: RegId: " + response.body());
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
+
+            }
+        });
         Log.d("regId", mRegId);
     }
 }

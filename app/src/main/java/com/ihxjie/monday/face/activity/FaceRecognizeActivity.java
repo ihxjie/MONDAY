@@ -699,14 +699,14 @@ public class FaceRecognizeActivity extends BaseActivity implements ViewTreeObser
                             finish();
 
                         } else {
-                            faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "NOT_REGISTERED"));
+                            faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "未找到人脸信息"));
                             retryRecognizeDelayed(requestId);
                         }
                     }
 
                     @Override
                     public void onError(@NotNull Throwable e) {
-                        faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "NOT_REGISTERED"));
+                        faceHelper.setName(requestId, getString(R.string.recognize_failed_notice, "未找到人脸信息"));
                         retryRecognizeDelayed(requestId);
                     }
 

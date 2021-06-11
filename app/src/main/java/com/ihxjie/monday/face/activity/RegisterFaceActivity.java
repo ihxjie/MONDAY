@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -855,8 +856,10 @@ public class RegisterFaceActivity extends BaseActivity implements ViewTreeObserv
     }
     private void saveFaceId(String userName){
         String faceId = userName.split(" ")[1];
-        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
         editor.putString("faceId", faceId);
+        editor.putBoolean("faceActive", true);
         editor.apply();
     }
 

@@ -5,12 +5,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -37,6 +39,7 @@ import com.ihxjie.monday.entity.Clazz;
 import com.ihxjie.monday.entity.ClazzInfo;
 import com.ihxjie.monday.entity.PositionInfo;
 import com.ihxjie.monday.face.activity.FaceRecognizeActivity;
+import com.ihxjie.monday.face.widget.ProgressDialog;
 import com.ihxjie.monday.service.AttendanceService;
 import com.ihxjie.monday.service.ClazzService;
 import com.ihxjie.monday.service.RecordService;
@@ -46,8 +49,12 @@ import com.ihxjie.monday.zxing.android.CaptureActivity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -63,7 +70,8 @@ public class ClazzActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SCAN = 0x0000;
     private static final int REQUEST_CODE_FACE = 0x0001;
     private static final int REQUEST_CODE_LOCATION = 0x0002;
-    private static final int REQUEST_CODE_CLICK = 0x0003;
+    private static final int REQUEST_CODE_LOCATION_FACE = 0x003;
+
 
     private Retrofit retrofit;
     private ClazzService clazzService;
@@ -75,6 +83,7 @@ public class ClazzActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Context context;
     private CollapsingToolbarLayout collapsingToolbar;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +157,11 @@ public class ClazzActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("正在完成签到");
+        progressDialog.setMessage("请等待");
+        progressDialog.setCancelable(true);
+        progressDialog.setCanceledOnTouchOutside(true);
     }
 
     @Override
@@ -175,6 +189,14 @@ public class ClazzActivity extends AppCompatActivity {
                     submitAttFace(attendance.getAttendanceId());
                 }
                 break;
+            case REQUEST_CODE_LOCATION_FACE:
+                if (resultCode == RESULT_OK && data != null){
+                    Intent intent = new Intent(this, FaceLocationActivity.class);
+                    Attendance attendance = (Attendance) data.getSerializableExtra("attendance");
+                    intent.putExtra("attendance", attendance);
+                    startActivity(intent);
+                }
+                break;
             default:
         }
     }
@@ -184,22 +206,16 @@ public class ClazzActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode){
             case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    startActivity(new Intent(context, CaptureActivity.class));
-                }else {
-                    Toast.makeText(this, "相机权限被拒绝!", Toast.LENGTH_SHORT).show();
-                }
-                break;
             case 2:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    startActivity(new Intent(context, FaceRecognizeActivity.class));
+                    Toast.makeText(this, "已获取相机权限", Toast.LENGTH_SHORT).show();
                 }else {
                     Toast.makeText(this, "相机权限被拒绝!", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 3:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    startActivity(new Intent(context, LocationActivity.class));
+                    Toast.makeText(this, "已获取定位权限", Toast.LENGTH_SHORT).show();
                 }else {
                     Toast.makeText(this, "定位权限被拒绝!", Toast.LENGTH_SHORT).show();
                 }
@@ -211,24 +227,42 @@ public class ClazzActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void submitAttQrcode(String attendanceId){
+    private void submitAttQrcode(String url){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userId = sharedPreferences.getString("userId", "");
+        String path = url + "&userId=" + userId;
+        Log.d(TAG, "submitAttQrcode: " + path);
 
-        recordService = retrofit.create(RecordService.class);
-        Call<String> call = recordService.attQrcode(Long.parseLong(attendanceId));
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
-                showToast(response.body());
-            }
+        progressDialog.show();
 
-            @Override
-            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
-                showToast(t.getMessage());
+        Runnable runnable = () -> {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(path)
+                    .build();
+            try {
+                okhttp3.Response response = client.newCall(request).execute();
+                Log.d(TAG, "submitAttQrcode: " + response);
+                showResponse(response.body().string());
+            }catch (Exception e){
+                e.printStackTrace();
             }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+    private void showResponse(final String string) {
+        runOnUiThread(() -> {
+            //进行UI操作
+            progressDialog.dismiss();
+            Toast.makeText(getApplicationContext(), string, Toast.LENGTH_SHORT).show();
         });
     }
 
     private void submitAttFace(Long attendanceId){
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userId = sharedPreferences.getString("userId", "");
 
         Gson gson = new GsonBuilder().setLenient().create();
         retrofit = new Retrofit.Builder()
@@ -236,7 +270,7 @@ public class ClazzActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         recordService = retrofit.create(RecordService.class);
-        Call<String> call = recordService.attFace(attendanceId);
+        Call<String> call = recordService.attFace(userId, attendanceId);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
